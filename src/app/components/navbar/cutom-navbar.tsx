@@ -9,21 +9,40 @@ import {
 import Link from 'next/link';
 import LightSwitch from '../switch/light-switch';
 import { useTheme } from 'next-themes';
+import { useRouter } from 'next/navigation';
+import { signOut, useSession } from 'next-auth/react';
+import SignInButton from '../button/signin-button';
+import SignOutButton from '../button/signout-button';
+import { darkAccentColor, lightAccentColor } from '@/app/lib/theme-utils';
 
 const CutomNavbar = () => {
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
+  const session = useSession();
+
+  function signinButtonVisibilityHandler() {
+    return session.status === 'authenticated' ? (
+      <SignOutButton />
+    ) : (
+      <SignInButton />
+    );
+  }
 
   function handleLightSwitch() {
     setTheme(theme === 'dark' ? 'light' : 'dark');
     console.log({ theme });
   }
   return (
-    <Navbar position="sticky">
-      <NavbarBrand>
-        <p className="tracking-tight inline font-semibold from-[#FF1CF7] to-[#4de5f0] text-[2rem] lg:text-5xl bg-clip-text text-transparent bg-gradient-to-bl">
+    <Navbar position="sticky" className="w-full">
+      <NavbarBrand className="cursor-pointer" onClick={() => router.push('/')}>
+        <p
+          className={`tracking-tight inline font-semibold ${darkAccentColor} text-[2rem] lg:text-5xl bg-clip-text text-transparent`}
+        >
           SHORT
         </p>
-        <p className="tracking-tight inline font-semibold from-[#f4ff5d] to-[#ff0ad6] text-[2rem] lg:text-5xl bg-clip-text text-transparent bg-gradient-to-bl">
+        <p
+          className={`tracking-tight inline font-semibold ${lightAccentColor} text-[2rem] lg:text-5xl bg-clip-text text-transparent`}
+        >
           FY
         </p>
       </NavbarBrand>
@@ -45,17 +64,10 @@ const CutomNavbar = () => {
         </NavbarItem>
       </NavbarContent>
       <NavbarContent justify="end">
-        <NavbarItem className="hidden lg:flex">
-          <Link href="#">Login</Link>
-        </NavbarItem>
         <NavbarItem>
           <LightSwitch onChange={handleLightSwitch} />
         </NavbarItem>
-        <NavbarItem>
-          <Button as={Link} color="primary" href="#" variant="flat">
-            Sign Up
-          </Button>
-        </NavbarItem>
+        <NavbarItem>{signinButtonVisibilityHandler()}</NavbarItem>
       </NavbarContent>
     </Navbar>
   );
